@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>泡泡茶铺｜五味冷泡茶</title>
+  <style>
+    :root {
+      --ink: #493d45;
+      --green: #51745b;
+      --cream: #fffaf1;
+      --pink: #f3a5b7;
+      --orange: #ffbd72;
+      --line: #f0e5dc;
+      --muted: #81777a;
+      --shadow: 0 12px 30px rgba(100, 73, 72, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(1120px, calc(100% - 34px)); margin: auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,250,241,.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand { color: var(--green); font-weight: 900; letter-spacing: 1px; }
+    .navlinks { display: flex; gap: 18px; color: #74676c; font-size: 13px; }
+
+    .cart-wrap { position: relative; }
+    .cart {
+      border: 0;
+      border-radius: 99px;
+      padding: 9px 14px;
+      color: white;
+      background: #e98ba3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .cart-panel {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 20;
+      width: min(300px, calc(100vw - 36px));
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .cart-panel p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .cart-panel[hidden] { display: none; }
+
+    .hero {
+      padding: 52px 0 44px;
+      background:
+        radial-gradient(circle at 8% 10%, #ffe1e7 0 68px, transparent 70px),
+        radial-gradient(circle at 88% 18%, #dff0dc 0 90px, transparent 92px),
+        linear-gradient(135deg, #fff1e6, #fffaf1 55%, #f5eaff);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      align-items: center;
+    }
+    .pill {
+      display: inline-block;
+      padding: 7px 13px;
+      border-radius: 99px;
+      color: #81506a;
+      background: #ffe2eb;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    h1 { margin: 17px 0 12px; font-size: clamp(40px, 5vw, 62px); line-height: 1.12; }
+    h1 span { color: #e77e9a; }
+    .intro { max-width: 500px; color: #776d70; }
+    .hero-price { margin: 18px 0; color: #e0784a; font-size: 38px; font-weight: 900; }
+    .hero-price small { color: var(--muted); font-size: 14px; font-weight: 500; }
+
+    .btn {
+      display: inline-block;
+      border: 0;
+      border-radius: 99px;
+      padding: 12px 20px;
+      font-weight: 800;
+    }
+    .btn-main { color: white; background: #e77e9a; box-shadow: 0 7px 16px #e77e9a44; }
+    .btn-main:hover { background: #d96887; }
+    .btn-soft { margin-left: 7px; color: #745a68; background: white; border: 1px solid var(--line); }
+
+    .hero-art {
+      position: relative;
+      min-height: 320px;
+      padding: 22px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      border: 2px solid white;
+      border-radius: 28px;
+      background: rgba(255,255,255,.68);
+      box-shadow: var(--shadow);
+    }
+    .hero-art::before {
+      content: "✿";
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      color: #ef9caf;
+      font-size: 30px;
+      pointer-events: none;
+    }
+    .hero-art::after {
+      content: "🍑";
+      position: absolute;
+      right: 20px;
+      bottom: 12px;
+      font-size: 29px;
+      pointer-events: none;
+    }
+    .hero-art.has-upload::before, .hero-art.has-upload::after { display: none; }
+
+    .hero-upload-button, .product-upload-button {
+      position: absolute;
+      z-index: 4;
+      top: 12px;
+      right: 12px;
+      border: 0;
+      border-radius: 99px;
+      padding: 9px 13px;
+      color: white;
+      background: #e77e9a;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px #9b596644;
+    }
+    .hero-upload-button:hover, .product-upload-button:hover { background: #d96887; }
+
+    .hero-upload-photo, .product-uploaded-photo {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff8f1;
+      border-radius: inherit;
+    }
+    .hero-art.has-upload .bottle-row { display: none; }
+
+    .bottle-row { display: flex; align-items: end; gap: 9px; }
+    .mini-bottle {
+      position: relative;
+      width: 49px;
+      height: 158px;
+      border: 3px solid rgba(255,255,255,.94);
+      border-radius: 17px 17px 12px 12px;
+      box-shadow: 0 10px 15px #594b4b22;
+    }
+    .mini-bottle:nth-child(2), .mini-bottle:nth-child(4) { height: 182px; }
+    .mini-bottle::before {
+      content: "";
+      position: absolute;
+      top: -17px;
+      left: 13px;
+      width: 18px;
+      height: 18px;
+      border-radius: 5px 5px 2px 2px;
+      background: #76936f;
+    }
+    .mini-bottle::after {
+      content: "0糖";
+      position: absolute;
+      top: 55px;
+      left: 3px;
+      right: 3px;
+      padding: 6px 0;
+      border-radius: 7px;
+      color: #557155;
+      background: rgba(255,255,255,.94);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .rose-bg { background: linear-gradient(90deg, #f8b8c2, #fff0ee, #e994a7); }
+    .jasmine-bg { background: linear-gradient(90deg, #dce8bd, #fffdec, #b8d29b); }
+    .oolong-bg { background: linear-gradient(90deg, #bf9872, #f5e1bd, #9e7756); }
+    .maojian-bg { background: linear-gradient(90deg, #a9cb84, #f3f5d9, #8daf66); }
+    .peach-bg { background: linear-gradient(90deg, #ffc083, #fff0d6, #f39c79); }
+
+    .hero-caption {
+      position: absolute;
+      z-index: 2;
+      bottom: 11px;
+      left: 16px;
+      padding: 4px 8px;
+      border-radius: 99px;
+      color: #887b7b;
+      background: rgba(255,255,255,.82);
+      font-size: 11px;
+    }
+
+    section { padding: 54px 0; }
+    .section-title { margin-bottom: 23px; }
+    .section-title h2 { margin: 0 0 5px; font-size: 29px; }
+    .section-title p { margin: 0; color: var(--muted); }
+
+    .flavors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; }
+    .flavor-card {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: white;
+      text-align: center;
+      box-shadow: 0 7px 20px #6955540b;
+    }
+    .photo-box {
+      position: relative;
+      height: 210px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #fff4ea;
+    }
+    .bottle-art {
+      position: relative;
+      width: 82px;
+      height: 151px;
+      border: 4px solid rgba(255,255,255,.94);
+      border-radius: 23px 23px 17px 17px;
+      box-shadow: 0 11px 17px #56464b26;
+    }
+    .bottle-art::before {
+      content: "";
+      position: absolute;
+      top: -21px;
+      left: 24px;
+      width: 26px;
+      height: 20px;
+      border-radius: 7px 7px 3px 3px;
+      background: #72906c;
+    }
+    .bottle-art::after {
+      content: "0糖";
+      position: absolute;
+      top: 53px;
+      left: 5px;
+      right: 5px;
+      padding: 7px 0;
+      border-radius: 7px;
+      color: #526e51;
+      background: rgba(255,255,255,.94);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .photo-box img.real-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff8f1;
+    }
+    .photo-box.has-photo .bottle-art { display: none; }
+    .flavor-card h3 { margin: 9px 0 1px; font-size: 16px; }
+    .flavor-card p { margin: 0; color: var(--muted); font-size: 12px; }
+    .upload-button {
+      margin-top: 9px;
+      padding: 7px 11px;
+      border: 0;
+      border-radius: 99px;
+      color: #765d69;
+      background: #fff0f4;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .upload-button:hover { background: #ffe0e9; }
+    .photo-status { min-height: 18px; margin-top: 4px; color: #72906c; font-size: 10px; }
+
+    .product-box {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 28px;
+      align-items: center;
+      padding: 22px;
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .product-show {
+      position: relative;
+      min-height: 300px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(140deg, #ffebee, #f1f3df);
+    }
+    .product-show .bottle-row { transform: scale(.88); }
+    .product-show.has-photo .bottle-row { display: none; }
+    .product-box h2 { margin: 10px 0 5px; font-size: 28px; }
+    .muted { color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .chip { padding: 5px 10px; border-radius: 99px; color: #5c755e; background: #edf4e8; font-size: 12px; }
+
+    .pickers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .pickers select {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fffdfa;
+    }
+
+    .order-photo-row {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px dashed #e6bfd0;
+      border-radius: 14px;
+      background: #fff8fa;
+    }
+    .order-photo-button {
+      padding: 8px 13px;
+      border: 0;
+      border-radius: 99px;
+      color: #81506a;
+      background: #ffe2eb;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .order-photo-preview {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      color: #71696c;
+      font-size: 12px;
+    }
+    .order-photo-preview.show { display: flex; }
+    .order-photo-preview img {
+      width: 58px;
+      height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .order-photo-name { overflow-wrap: anywhere; }
+    .buy-row { display: flex; justify-content: space-between; align-items: center; margin-top: 19px; }
+    .buy-row strong { color: #e0784a; font-size: 28px; }
+
+    .soft { background: #fff1f2; }
+    .three, .two { display: grid; gap: 14px; }
+    .three { grid-template-columns: repeat(3, 1fr); }
+    .two { grid-template-columns: repeat(2, 1fr); }
+    .panel { padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: white; }
+    .panel h3 { margin: 0 0 7px; font-size: 17px; }
+    .panel p, .panel li { color: #71696c; font-size: 13px; }
+    .panel p { margin: 0; }
+    .panel ul { margin: 0; padding-left: 19px; }
+    .panel li { margin: 6px 0; }
+
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-top: 15px; }
+    .flow div {
+      padding: 12px 6px;
+      border-radius: 13px;
+      color: var(--muted);
+      background: white;
+      text-align: center;
+      font-size: 12px;
+    }
+    .flow b { display: block; color: var(--green); }
+
+    .finance { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; }
+    .tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    table { width: 100%; min-width: 460px; border-collapse: collapse; }
+    th, td { padding: 11px 13px; border-bottom: 1px solid #f0eee8; text-align: left; font-size: 13px; }
+    th { color: #735d50; background: #fff1e5; }
+    tr:last-child td { border-bottom: 0; }
+    .metrics { display: grid; gap: 9px; }
+    .metric { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; }
+    .metric strong { display: block; color: var(--green); font-size: 23px; }
+    .note {
+      padding: 14px 17px;
+      margin-top: 15px;
+      border-left: 4px solid #e9a45f;
+      border-radius: 0 12px 12px 0;
+      color: #725e4c;
+      background: #fff7e8;
+      font-size: 13px;
+    }
+    .funding { margin-top: 15px; padding: 18px; border-radius: 16px; color: white; background: #58785d; }
+    .funding p { margin: 5px 0 0; color: #eff5ed; font-size: 13px; }
+    footer { padding: 24px 0 34px; color: var(--muted); font-size: 12px; }
+
+    .toast {
+      position: fixed;
+      z-index: 30;
+      bottom: 20px;
+      left: 50%;
+      max-width: calc(100% - 30px);
+      padding: 10px 16px;
+      border-radius: 99px;
+      color: white;
+      background: #51434a;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 15px);
+      transition: .2s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 760px) {
+      .nav { gap: 10px; }
+      .navlinks { display: none; }
+      .hero-grid, .product-box, .finance { grid-template-columns: 1fr; }
+      .hero-art { min-height: 280px; }
+      .product-show { min-height: 260px; }
+      .flavors { grid-template-columns: repeat(2, 1fr); }
+      .three, .two { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .flow div:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">🧋 泡泡茶铺</a>
+
+    <nav class="navlinks" aria-label="页面导航">
+      <a href="#flavors">五种口味</a>
+      <a href="#product">选购商品</a>
+      <a href="#operation">店铺运营</a>
+      <a href="#profit">盈利测算</a>
+    </nav>
+
+    <div class="cart-wrap">
+      <button class="cart" id="cartButton" type="button" aria-expanded="false">
+        🛍 购物车 <span id="cartCount">0</span>
+      </button>
+      <div class="cart-panel" id="cartPanel" hidden>
+        <strong>我的购物车</strong>
+        <p id="cartSummary">还没有添加商品</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="pill">🍑 五种风味 · 轻松选一组</span>
+        <h1>今天的快乐，<br><span>来一瓶冷泡茶！</span></h1>
+        <p class="intro">
+          玫瑰、茉莉、乌龙、毛尖、蜜桃五种口味。
+          四瓶一组，自由搭配，清爽分享好心情。
+        </p>
+        <div class="hero-price">¥15.9 <small>四瓶装｜约¥3.98/瓶</small></div>
+        <a class="btn btn-main" href="#product">去选口味 ✨</a>
+        <a class="btn btn-soft" href="#operation">看看小店怎么运营</a>
+      </div>
+
+      <div class="hero-art" id="heroArt">
+        <button class="hero-upload-button" id="heroUploadButton" type="button">📷 上传整体图片</button>
+        <input id="heroPhotoInput" type="file" accept="image/*" hidden>
+
+        <div class="bottle-row">
+          <div class="mini-bottle rose-bg"></div>
+          <div class="mini-bottle jasmine-bg"></div>
+          <div class="mini-bottle oolong-bg"></div>
+          <div class="mini-bottle maojian-bg"></div>
+          <div class="mini-bottle peach-bg"></div>
+        </div>
+        <span class="hero-caption">可上传自己的整体商品照片</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="flavors">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>五个口味小伙伴 🍓</h2>
+        <p>点击对应按钮上传瓶装照片。未上传时显示彩色瓶子示意图。</p>
+      </div>
+
+      <div class="flavors">
+        <article class="flavor-card" data-flavor="玫瑰">
+          <div class="photo-box"><div class="bottle-art rose-bg"></div></div>
+          <h3>🌹 玫瑰味</h3><p>花香柔柔，清甜雅致</p>
+          <button class="upload-button" type="button">📷 上传玫瑰照片</button>
+          <input class="flavor-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-status">使用示意图</div>
+        </article>
+
+        <article class="flavor-card" data-flavor="茉莉">
+          <div class="photo-box"><div class="bottle-art jasmine-bg"></div></div>
+          <h3>🌼 茉莉味</h3><p>清雅花香，轻盈回甘</p>
+          <button class="upload-button" type="button">📷 上传茉莉照片</button>
+          <input class="flavor-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-status">使用示意图</div>
+        </article>
+
+        <article class="flavor-card" data-flavor="乌龙">
+          <div class="photo-box"><div class="bottle-art oolong-bg"></div></div>
+          <h3>🍂 乌龙味</h3><p>醇和茶韵，层次丰富</p>
+          <button class="upload-button" type="button">📷 上传乌龙照片</button>
+          <input class="flavor-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-status">使用示意图</div>
+        </article>
+
+        <article class="flavor-card" data-flavor="毛尖">
+          <div class="photo-box"><div class="bottle-art maojian-bg"></div></div>
+          <h3>🍃 毛尖味</h3><p>清润鲜爽，茶香淡雅</p>
+          <button class="upload-button" type="button">📷 上传毛尖照片</button>
+          <input class="flavor-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-status">使用示意图</div>
+        </article>
+
+        <article class="flavor-card" data-flavor="蜜桃">
+          <div class="photo-box"><div class="bottle-art peach-bg"></div></div>
+          <h3>🍑 蜜桃味</h3><p>果香甜甜，清爽可口</p>
+          <button class="upload-button" type="button">📷 上传蜜桃照片</button>
+          <input class="flavor-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-status">使用示意图</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="product">
+    <div class="wrap product-box">
+      <!-- 这是你要替换的左侧整体商品图片区域 -->
+      <div class="product-show" id="productShow">
+        <button class="product-upload-button" id="productUploadButton" type="button">
+          📷 上传左侧商品图
+        </button>
+        <input id="productPhotoInput" type="file" accept="image/*" hidden>
+
+        <div class="bottle-row">
+          <div class="mini-bottle rose-bg"></div>
+          <div class="mini-bottle jasmine-bg"></div>
+          <div class="mini-bottle oolong-bg"></div>
+          <div class="mini-bottle peach-bg"></div>
+        </div>
+      </div>
+
+      <div>
+        <span class="pill">本店人气组合 💛</span>
+        <h2>泡泡冷泡茶 · 四瓶装</h2>
+        <p class="muted">
+          五种口味任选四瓶，支持混搭。页面暂按300ml/瓶作为作业示例；
+          实际规格、配料、保质期与储存方式以产品标签为准。
+        </p>
+
+        <div class="chips">
+          <span class="chip">每瓶标注：0糖*</span>
+          <span class="chip">四瓶一组</span>
+          <span class="chip">五种口味任选</span>
+        </div>
+
+        <p><strong>给四瓶分别选口味：</strong></p>
+        <div class="pickers">
+          <select class="flavor-picker" aria-label="第1瓶口味">
+            <option>玫瑰</option><option>茉莉</option><option>乌龙</option><option>毛尖</option><option>蜜桃</option>
+          </select>
+          <select class="flavor-picker" aria-label="第2瓶口味">
+            <option>茉莉</option><option>玫瑰</option><option>乌龙</option><option>毛尖</option><option>蜜桃</option>
+          </select>
+          <select class="flavor-picker" aria-label="第3瓶口味">
+            <option>乌龙</option><option>玫瑰</option><option>茉莉</option><option>毛尖</option><option>蜜桃</option>
+          </select>
+          <select class="flavor-picker" aria-label="第4瓶口味">
+            <option>蜜桃</option><option>玫瑰</option><option>茉莉</option><option>乌龙</option><option>毛尖</option>
+          </select>
+        </div>
+
+        <div class="order-photo-row">
+          <button class="order-photo-button" id="orderPhotoButton" type="button">📷 上传本单图片</button>
+          <input id="orderPhotoInput" type="file" accept="image/*" hidden>
+          <div class="order-photo-preview" id="orderPhotoPreview">
+            <img id="orderPhotoThumb" alt="本单上传图片预览">
+            <span class="order-photo-name" id="orderPhotoName"></span>
+          </div>
+        </div>
+
+        <div class="buy-row">
+          <strong>¥15.9</strong>
+          <button class="btn btn-main" id="addCartButton" type="button">加入购物车 🛍</button>
+        </div>
+        <small class="muted">*“0糖”字样须与真实产品标签和配料信息一致。</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="soft">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>为什么选这组茶？ 🌈</h2>
+        <p>亲民组合价、丰富风味、小批量起步，适合轻资产网店模拟经营。</p>
+      </div>
+      <div class="three">
+        <article class="panel"><h3>🍑 五味自由搭</h3><p>花香、茶香、果香都有，四瓶可按个人喜好组合。</p></article>
+        <article class="panel"><h3>💰 价格轻松</h3><p>15.9元四瓶，均价约3.98元/瓶，降低尝新门槛。</p></article>
+        <article class="panel"><h3>📦 先试销再扩张</h3><p>先观察订单与口味偏好，再小批量补货，降低压货风险。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="soft" id="operation">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>小店运营计划 📒</h2>
+        <p>以下数据为课程模拟假设，真实运营时应使用实际报价更新。</p>
+      </div>
+
+      <div class="two">
+        <article class="panel">
+          <h3>📥 进货与验收</h3>
+          <ul>
+            <li>询价并索取样品、供应商资质、产品标签和储存资料，确认配料、起订量及供货周期。</li>
+            <li>模拟首批进货80组，共320瓶；假设进货成本7.20元/组，按试销需求分配五种口味。</li>
+            <li>收货核对数量、口味、批次、生产日期、保质期、瓶身与外包装。</li>
+            <li>记录供应商、采购单价、批号、效期、到货数量及验收异常。</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>🧮 盘点与补货</h3>
+          <ul>
+            <li>每日登记期初库存、入库、出库、退货/报损和期末实盘；发现差异后核查订单与拣货记录。</li>
+            <li>按“先到期先出（FEFO）”拣货，按口味和批次分别管理。</li>
+            <li>目标日销8组；假设供货周期3天、安全库存16组，库存降至40组时评估补货。</li>
+            <li>首批80组约覆盖10天目标销量；每周复盘畅销口味并调整进货比例。</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>🚚 出货与销售渠道</h3>
+          <ul>
+            <li>模拟渠道：社群、短视频内容、校园社团/熟人分享、合规电商平台。</li>
+            <li>付款后确认四瓶口味和地址，拣货复核数量、批次、封口和防漏包装，再登记物流单号。</li>
+            <li>记录发货时间、订单状态、退款和顾客反馈，及时处理漏液、破损及错发。</li>
+            <li>比较各渠道的销量、获客费用、退货率和复购率，不盲目投放广告。</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>⏰ 保质期、损耗与坏品</h3>
+          <ul>
+            <li>不虚构具体保质期；按实物标签记录生产日期、保质期和储存要求。</li>
+            <li>设置内部效期预警，临近效期时停止补货并按规定处理，严禁销售过期商品。</li>
+            <li>漏液、破损、异味或标签异常商品立即隔离，保留照片、批次和订单信息。</li>
+            <li>质量异常商品不二次销售；按供应商约定退换或依法处置，并记录报损原因和金额。</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="flow">
+        <div><b>① 询价选品</b>资质与样品核验</div>
+        <div><b>② 到货验收</b>批次效期登记</div>
+        <div><b>③ 上架接单</b>渠道订单记录</div>
+        <div><b>④ 拣货出库</b>核对包装物流</div>
+        <div><b>⑤ 盘点复盘</b>调整补货方案</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profit">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>定价与回本测算 💹</h2>
+        <p>轻资产线上模拟方案；成本和销量为假设，不是收益承诺。</p>
+      </div>
+
+      <div class="finance">
+        <div class="tablebox">
+          <table>
+            <thead>
+              <tr><th>每组四瓶的测算项目</th><th>金额</th><th>假设说明</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>售价</td><td>¥15.90</td><td>课程设定价格</td></tr>
+              <tr><td>商品进货</td><td>¥7.20</td><td>模拟成本，需询价确认</td></tr>
+              <tr><td>包装耗材</td><td>¥0.80</td><td>缓冲包装等估算</td></tr>
+              <tr><td>物流费用</td><td>¥3.20</td><td>卖家承担的均摊运费假设</td></tr>
+              <tr><td>平台/支付费用</td><td>¥0.48</td><td>按售价3%估算</td></tr>
+              <tr><td>损耗准备金</td><td>¥0.32</td><td>按售价2%估算</td></tr>
+              <tr><td><strong>单组贡献毛利</strong></td><td><strong>¥3.90</strong></td><td>未扣固定费用</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><span>模拟月销量</span><strong>240组</strong></div>
+          <div class="metric"><span>月固定费用假设</span><strong>¥300</strong></div>
+          <div class="metric"><span>月经营利润估算</span><strong>¥636</strong></div>
+          <div class="metric"><span>覆盖月固定费用销量</span><strong>约77组</strong></div>
+        </div>
+      </div>
+
+      <div class="note">
+        单组贡献毛利 = 15.90 − 7.20 − 0.80 − 3.20 − 0.48 − 0.32 = 3.90元。
+        月经营利润 = 240 × 3.90 − 300 = 636元。假设一次性启动费用600元，
+        连同首月固定费用共需覆盖900元，约需销售231组回收；按日销8组约29天。
+        未计税费、促销折扣和人工，实际回本周期可能更长。
+      </div>
+
+      <div class="funding">
+        <strong>🌱 轻资产启动与融资逻辑</strong>
+        <p>
+          模拟准备资金：首批80组货款576元 + 页面/样品启动预算600元 + 首月固定费用300元，
+          合计约1,476元。先用小批量验证订单、复购、毛利、库存周转和损耗率；
+          数据验证后再评估增加推广或引入资金，避免需求未验证前大量压货。
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    泡泡茶铺｜食品网店模拟课程作业。照片仅在当前浏览器页面预览，不会上传到真实网店服务器。
+    商品规格、配料、“0糖”依据、保质期和储存条件均应以真实商品资料为准。
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  let cartCount = 0;
+  let heroPhotoUrl = null;
+  let productPhotoUrl = null;
+  let orderPhotoUrl = null;
+
+  const toast = document.getElementById("toast");
+  const cartButton = document.getElementById("cartButton");
+  const cartPanel = document.getElementById("cartPanel");
+  const cartSummary = document.getElementById("cartSummary");
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2500);
+  }
+
+  function isImage(file) {
+    return Boolean(file && file.type && file.type.startsWith("image/"));
+  }
+
+  function setUploadedImage(container, className, file, previousUrl, onDone) {
+    if (!isImage(file)) {
+      showToast("请选择图片文件");
+      return previousUrl;
+    }
+
+    if (previousUrl) URL.revokeObjectURL(previousUrl);
+
+    const imageUrl = URL.createObjectURL(file);
+    let image = container.querySelector("." + className);
+
+    if (!image) {
+      image = document.createElement("img");
+      image.className = className;
+      image.alt = "上传的商品图片";
+      container.appendChild(image);
+    }
+
+    image.src = imageUrl;
+    if (onDone) onDone(imageUrl);
+    return imageUrl;
+  }
+
+  // 顶部主视觉图片上传
+  const heroInput = document.getElementById("heroPhotoInput");
+
+  document.getElementById("heroUploadButton").addEventListener("click", () => {
+    heroInput.click();
+  });
+
+  heroInput.addEventListener("change", function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+
+    heroPhotoUrl = setUploadedImage(
+      document.getElementById("heroArt"),
+      "hero-upload-photo",
+      file,
+      heroPhotoUrl,
+      () => document.getElementById("heroArt").classList.add("has-upload")
+    );
+
+    if (heroPhotoUrl) showToast("顶部整体图片已更换");
+    this.value = "";
+  });
+
+  // 下单区域左侧整体商品图上传——这是左侧大图的替换按钮
+  const productInput = document.getElementById("productPhotoInput");
+  const productShow = document.getElementById("productShow");
+  const productUploadButton = document.getElementById("productUploadButton");
+
+  productUploadButton.addEventListener("click", () => {
+    productInput.click();
+  });
+
+  productInput.addEventListener("change", function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+
+    productPhotoUrl = setUploadedImage(
+      productShow,
+      "product-uploaded-photo",
+      file,
+      productPhotoUrl,
+      () => {
+        productShow.classList.add("has-photo");
+        productUploadButton.textContent = "🖼 修改左侧商品图";
+      }
+    );
+
+    if (productPhotoUrl) showToast("下单区域左侧商品图已替换");
+    this.value = "";
+  });
+
+  // 五种口味图片上传
+  document.querySelectorAll(".flavor-card").forEach(card => {
+    const button = card.querySelector(".upload-button");
+    const input = card.querySelector(".flavor-photo-input");
+    const flavor = card.dataset.flavor;
+    let photoUrl = null;
+
+    button.addEventListener("click", () => input.click());
+
+    input.addEventListener("change", function () {
+      const file = this.files && this.files[0];
+      if (!file) return;
+
+      const box = card.querySelector(".photo-box");
+      photoUrl = setUploadedImage(box, "real-photo", file, photoUrl, () => {
+        box.classList.add("has-photo");
+        card.querySelector(".photo-status").textContent = "实拍图已显示";
+        button.textContent = "🖼 修改" + flavor + "照片";
+      });
+
+      if (photoUrl) showToast(flavor + "味照片已显示");
+      this.value = "";
+    });
+  });
+
+  // 下单区域本单图片上传与预览
+  const orderInput = document.getElementById("orderPhotoInput");
+
+  document.getElementById("orderPhotoButton").addEventListener("click", () => {
+    orderInput.click();
+  });
+
+  orderInput.addEventListener("change", function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+
+    if (!isImage(file)) {
+      showToast("请选择图片文件");
+      this.value = "";
+      return;
+    }
+
+    if (orderPhotoUrl) URL.revokeObjectURL(orderPhotoUrl);
+    orderPhotoUrl = URL.createObjectURL(file);
+
+    document.getElementById("orderPhotoThumb").src = orderPhotoUrl;
+    document.getElementById("orderPhotoName").textContent = "本单图片：" + file.name;
+    document.getElementById("orderPhotoPreview").classList.add("show");
+    document.getElementById("orderPhotoButton").textContent = "🖼 修改本单图片";
+
+    showToast("本单图片已选择");
+    this.value = "";
+  });
+
+  // 购物车展开与收起
+  cartButton.addEventListener("click", () => {
+    const opening = cartPanel.hidden;
+    cartPanel.hidden = !opening;
+    cartButton.setAttribute("aria-expanded", String(opening));
+
+    cartSummary.textContent = cartCount > 0
+      ? "冷泡茶四瓶装 × " + cartCount + " 组｜¥" + (cartCount * 15.9).toFixed(2)
+      : "还没有添加商品";
+  });
+
+  // 模拟加入购物车
+  document.getElementById("addCartButton").addEventListener("click", () => {
+    cartCount += 1;
+    document.getElementById("cartCount").textContent = cartCount;
+
+    const flavors = [...document.querySelectorAll(".flavor-picker")]
+      .map(select => select.value)
+      .join("、");
+
+    cartSummary.textContent =
+      "冷泡茶四瓶装 × " + cartCount + " 组｜¥" + (cartCount * 15.9).toFixed(2);
+
+    const orderPhotoText = document.getElementById("orderPhotoName").textContent;
+    showToast(
+      "已加入购物车：" + flavors + "｜¥15.9" +
+      (orderPhotoText ? "；" + orderPhotoText : "")
+    );
+  });
+</script>
+</body>
+</html>
